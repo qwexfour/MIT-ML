@@ -16,8 +16,38 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 import numpy as np
 
+def generate_input(num_dims, num_points, dist_func = lambda x : x):
+  """Randomly generates an input for a linear separator.
+
+  Parameters:
+    num_dims - the number of dimensions;
+    num_points - the number of points to produce;
+    dist_func - distribution function, it takes real values in [0, 1) range or
+                arrays of those values and returns a corresponding value with a
+                different distribution; does not change the distribution by
+                default.
+  Result:
+    Generated points;
+    Labels for those points;
+    theta and theta_0 that defines the chosen separator.
+  """
+  points = dist_func(np.random.rand(num_dims, num_points))
+
+  # generating a plane parameters
+  theta = np.random.rand(num_dims)
+  point_on_plane = dist_func(np.random.rand(num_dims))
+  theta_0 = -np.dot(theta, point_on_plane)
+
+  labels = np.dot(np.transpose(theta), points) + theta_0
+  labels = np.sign(labels)
+
+  return (points, labels, theta, theta_0)
+
+
 def main():
-  print(np.array([[42], [43]]))
+  points, labels, theta, theta_0 = generate_input(2, 15)
+  print(points)
+  print(labels)
 
 if __name__ == "__main__":
   main()
