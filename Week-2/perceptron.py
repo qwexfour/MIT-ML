@@ -34,9 +34,10 @@ def generate_input(num_dims, num_points, dist_func = lambda x : x):
   points = dist_func(np.random.rand(num_dims, num_points))
 
   # generating a plane parameters
-  theta = np.random.rand(num_dims)
+  theta = np.random.rand(num_dims) - np.array([0.5] * num_dims)
   point_on_plane = dist_func(np.random.rand(num_dims))
   theta_0 = -np.dot(theta, point_on_plane)
+  theta = np.transpose(np.array([theta]))
 
   labels = np.dot(np.transpose(theta), points) + theta_0
   labels = np.sign(labels)
