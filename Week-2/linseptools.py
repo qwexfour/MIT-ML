@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" Perceptron algorithm implementation.
+"""Tools for linearly separable data.
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -56,12 +56,12 @@ def draw(points, labels, equation):
   axes = plt.subplot(111)
   axes.set_aspect('equal')
 
-  draw_points(points, labels)
-  min_point, max_point, epsilon = calculate_points_properties(points)
-  draw_line(equation, min_point, max_point, epsilon)
+  _draw_points(points, labels)
+  min_point, max_point, epsilon = _calculate_points_properties(points)
+  _draw_line(equation, min_point, max_point, epsilon)
   plt.show()
 
-def calculate_points_properties(points):
+def _calculate_points_properties(points):
   """Calculates some properties of the provided points.
 
   Parameters:
@@ -88,7 +88,7 @@ def calculate_points_properties(points):
 
   return (min_point, max_point, epsilon)
 
-def draw_points(points, labels):
+def _draw_points(points, labels):
   """Draws the provided points and separator.
 
   Parameters:
@@ -103,7 +103,7 @@ def draw_points(points, labels):
   plt.plot(pos_points[0], pos_points[1], 'k+')
   plt.plot(neg_points[0], neg_points[1], 'k_')
 
-def draw_line(equation, min_point, max_point, epsilon):
+def _draw_line(equation, min_point, max_point, epsilon):
   """Draw the line defined by the equation.
 
   Parameters:
@@ -117,15 +117,15 @@ def draw_line(equation, min_point, max_point, epsilon):
   There is an augment in the middle of the line that shows the direction of the
   normal.
   """
-  line_points = define_box_crossing(equation, min_point, max_point, epsilon)
+  line_points = _define_box_crossing(equation, min_point, max_point, epsilon)
   medium = (line_points[:, 0:1] + line_points[:, 1:2]) / 2
-  scaled_theta = scale_vector_for_box(equation[0], max_point - min_point)
+  scaled_theta = _scale_vector_for_box(equation[0], max_point - min_point)
   theta_tip = medium + scaled_theta
   line_points = np.concatenate((line_points[:, 0:1], medium, theta_tip, medium,
                                 line_points[:, 1:2]), axis=1)
   plt.plot(line_points[0], line_points[1], 'b-')
 
-def scale_vector_for_box(vec, box_size, factor=10):
+def _scale_vector_for_box(vec, box_size, factor=10):
   """Scales the vector to match the box size.
 
   Parameters:
@@ -139,7 +139,7 @@ def scale_vector_for_box(vec, box_size, factor=10):
   current_norm = np.linalg.norm(vec)
   return vec * (desired_norm / current_norm)
 
-def define_box_crossing(equation, min_point, max_point, epsilon):
+def _define_box_crossing(equation, min_point, max_point, epsilon):
   """Defines where the line crosses the box.
 
   Parameters:
@@ -162,8 +162,8 @@ def define_box_crossing(equation, min_point, max_point, epsilon):
 
   # Horizontal and vertical degenerate cases.
   for i in range(2):
-    if has_zero_coordinate(theta, box_size, epsilon, zero_axis=i):
-      return define_degenerate_box_crossing(equation, min_point, max_point,
+    if _has_zero_coordinate(theta, box_size, epsilon, zero_axis=i):
+      return _define_degenerate_box_crossin(equation, min_point, max_point,
                                             epsilon, zero_axis=i)
 
   result = np.array([[], []])
@@ -172,28 +172,32 @@ def define_box_crossing(equation, min_point, max_point, epsilon):
   #        will add the same point twice in this case.
   # Left (minimal) vertical (along x2) border:
   x = min_point[0, 0]
-  candidate = np.array([[x], [get_other_coordinate(equation, x, given_axis=0)]])
+  candidate = np.array([[x],
+                        [_get_other_coordinate(equation, x, given_axis=0)]])
   if candidate[1, 0] > min_point[1, 0] - epsilon and \
      candidate[1, 0] < max_point[1, 0] + epsilon:
      result = np.concatenate((result, candidate), axis=1)
 
   # Top (maximal) horizontal (along x1) border:
   x = max_point[1, 0]
-  candidate = np.array([[get_other_coordinate(equation, x, given_axis=1)], [x]])
+  candidate = np.array([[_get_other_coordinate(equation, x, given_axis=1)],
+                        [x]])
   if candidate[0, 0] > min_point[0, 0] - epsilon and \
      candidate[0, 0] < max_point[0, 0] + epsilon:
      result = np.concatenate((result, candidate), axis=1)
 
   # Right (maximal) vertical (along x2) border:
   x = max_point[0, 0]
-  candidate = np.array([[x], [get_other_coordinate(equation, x, given_axis=0)]])
+  candidate = np.array([[x],
+                        [_get_other_coordinate(equation, x, given_axis=0)]])
   if candidate[1, 0] > min_point[1, 0] - epsilon and \
      candidate[1, 0] < max_point[1, 0] + epsilon:
      result = np.concatenate((result, candidate), axis=1)
 
   # Bottom (minimal) horizontal (along x1) border:
   x = min_point[1, 0]
-  candidate = np.array([[get_other_coordinate(equation, x, given_axis=1)], [x]])
+  candidate = np.array([[_get_other_coordinate(equation, x, given_axis=1)],
+                        [x]])
   if candidate[0, 0] > min_point[0, 0] - epsilon and \
      candidate[0, 0] < max_point[0, 0] + epsilon:
      result = np.concatenate((result, candidate), axis=1)
@@ -201,7 +205,7 @@ def define_box_crossing(equation, min_point, max_point, epsilon):
   assert result.shape[1] == 2, "Must have found only 2 intersections"
   return result
 
-def get_other_coordinate(equation, x, given_axis):
+def _get_other_coordinate(equation, x, given_axis):
   """Given a coordinate of a point on the line calculates the other coordinate.
 
   Parameters:
@@ -216,7 +220,7 @@ def get_other_coordinate(equation, x, given_axis):
   theta, theta_0 = equation
   return -(theta[given_axis, 0] * x + theta_0) / theta[other_axis, 0]
 
-def has_zero_coordinate(point, box_size, epsilon, zero_axis):
+def _has_zero_coordinate(point, box_size, epsilon, zero_axis):
   """Checks that one of point's coordinates is close to zero.
 
   Parameters:
@@ -237,7 +241,7 @@ def has_zero_coordinate(point, box_size, epsilon, zero_axis):
   assert epsilon_ratio > 0
   return point_ratio < epsilon_ratio
 
-def define_degenerate_box_crossing(equation, min_point, max_point, epsilon,
+def _define_degenerate_box_crossin(equation, min_point, max_point, epsilon,
                                    zero_axis):
   """Defines points of the line and the box intersection for the corner case.
 
@@ -265,10 +269,3 @@ def define_degenerate_box_crossing(equation, min_point, max_point, epsilon,
   points[zero_axis, 0] = min_point[zero_axis, 0]
   points[zero_axis, 1] = max_point[zero_axis, 0]
   return points
-
-def main():
-  points, labels, theta, theta_0 = generate_input(2, 100)
-  draw(points, labels, (theta, theta_0))
-
-if __name__ == "__main__":
-  main()
