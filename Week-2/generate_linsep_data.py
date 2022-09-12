@@ -15,10 +15,19 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import linseptools as lst
+import argparse
 
 def main():
-  points, labels, theta, theta_0 = lst.generate_input(2, 100)
+  args = parse_args()
+  points, labels, theta, theta_0 = lst.generate_input(2, args.num_points)
   lst.draw(points, labels, (theta, theta_0))
+
+def parse_args():
+  parser = argparse.ArgumentParser(description='I will generate linearly '
+                                               'separable data for you.')
+  parser.add_argument('num_points', metavar='N', type=int, default=100,
+                      nargs='?', help='The number of points to generate')
+  return parser.parse_args()
 
 if __name__ == "__main__":
   main()
