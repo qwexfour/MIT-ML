@@ -27,9 +27,24 @@ def main():
   args = parse_args()
   run_test(args)
 
+class AlgoAction(argparse.Action):
+  def __init__(self, option_strings, dest, nargs=None, **kwargs):
+    super().__init__(option_strings, dest, **kwargs)
+
+  def __call__(self, parser, namespace, values, option_string=None):
+    if values == 'petron':
+      setattr(namespace, 'algo', petron.perceptron)
+    elif values == 'av_petron':
+      setattr(namespace, 'algo', petron.averaged_perceptron)
+    else:
+      assert 0, 'An argument choice handler was forgotten'
+
 def parse_args():
   parser = argparse.ArgumentParser(description='A program that tests '
                                                'perceptron algorithm.')
+  parser.add_argument('--algo', '-a', choices=['petron', 'av_petron'],
+                      default=petron.perceptron, action=AlgoAction,
+                      help='which algorithm to call (default: petron)')
   parser.add_argument('--points', '-p', metavar='P', type=int, default=100,
                       help='the number of points to generate')
   parser.add_argument('--dims', '-d', metavar='D', type=int, default=2,
@@ -72,7 +87,9 @@ def run_test(params):
   if not params.silent:
     print('{n} {d}D points were generated.'.format(n=params.points,
                                                    d=params.dims))
-  theta, theta_0 = petron.perceptron(points, labels, {'T': params.petron_iter})
+  theta, theta_0 = params.algo(points, labels, {'T': params.petron_iter})
+  if not params.silent:
+    print('{a} was used.'.format(a=params.algo))
   if not params.silent:
     print("Perceptron's solution (for T={t}) is:".format(t=params.petron_iter))
     print('  theta=\n{th},'.format(th=theta))

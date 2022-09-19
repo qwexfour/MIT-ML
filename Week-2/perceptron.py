@@ -47,3 +47,43 @@ def perceptron(data, labels, params={}, hook=None):
           hook((theta, theta_0))
 
   return (theta, theta_0)
+
+def averaged_perceptron(data, labels, params={}, hook=None):
+  """Averaged perceptron algorithm implementation.
+
+  This algorithm is just like the standard pereceptron algorith except it
+  returns the average of all the intermediate thetas and theta_0s.
+
+  Parameters:
+    data - a numpy array of dimension d by n;
+    labels - a numpy array of dimension 1 by n;
+    params - a dictionary specifying extra parameters to this algorithm, this
+             algorithm should run a number of iterations equal to T;
+    hook - either None or a function that takes the tuple (th, th0) as an
+           argument and displays the separator graphically.
+  """
+  # if T not in params, default to 100
+  T = params.get('T', 100)
+
+  # Your implementation here
+  num_dims, data_size = data.shape
+  theta = np.zeros((num_dims, 1))
+  theta_0 = 0.0
+  theta_sum = np.zeros((num_dims, 1))
+  theta_0_sum = 0.0
+
+  for t in range(T):
+    for i in range(data_size):
+      x = data[:, i:i+1]
+      y = labels[0, i]
+      prediction = np.dot(np.transpose(theta), x) + theta_0
+      if y * prediction <= 0:
+        theta += y * x
+        theta_0 += y
+        if hook:
+          hook((theta, theta_0))
+      theta_sum += theta
+      theta_0_sum += theta_0
+
+  sum_count = T * data_size
+  return (theta_sum / sum_count, theta_0_sum / sum_count)
