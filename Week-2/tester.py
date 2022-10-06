@@ -22,6 +22,7 @@ sys.path.append('../Week-1')
 import linseptools as lst
 import perceptron as petron
 import hyperplane as hpl
+import numpy as np
 
 def main():
   args = parse_args()
@@ -55,6 +56,13 @@ def parse_args():
                       help='use visualization mode (works only for 2D)')
   parser.add_argument('--silent', '-s', action='store_true',
                       help='disable all printouts')
+  parser.add_argument('--dump-input', metavar='filename.txt', default='',
+                      help='the name of a file to which the generated points '
+                           'and labels must be dumped')
+  parser.add_argument('--read-input', metavar='filename.txt', default='',
+                      help='the name of a file with the input points and '
+                           'their labels, the number of points and dimensions '
+                           'are derived from the data in this case')
   args = parser.parse_args()
 
   # Checking restrictions.
@@ -81,12 +89,20 @@ def run_test(params):
                dims - the number of dimensions,
                petron_iter - the number of iterations in perceptron algorithm,
                visualize - whether to visualize the result,
+               dump_input - a name of a file to which the input data should be
+                            dumped,
+               read_input - a name of a file with the input data, the data will
+                            be read in this case (not generated),
                silent - whether to disable the printouts.
   """
-  points, labels, _, _ = lst.generate_input(params.dims, params.points)
+  points, labels = _get_input(params)
   if not params.silent:
-    print('{n} {d}D points were generated.'.format(n=params.points,
-                                                   d=params.dims))
+    print('{n} {d}D points will be used.'.format(n=params.points,
+                                                 d=params.dims))
+  if params.dump_input:
+    np.savetxt(params.dump_input,
+               np.concatenate((points, labels), casting='no'))
+
   theta, theta_0 = params.algo(points, labels, {'T': params.petron_iter})
   if not params.silent:
     print('{a} was used.'.format(a=params.algo))
@@ -100,6 +116,40 @@ def run_test(params):
           'classified.'.format(s=score, p=params.points))
   if params.visualize and params.dims == 2:
     lst.draw(points, labels, (theta, theta_0))
+
+def _get_input(params):
+  """Reads from a file or generates input data.
+
+  Parameters:
+    params - a class with the required parameters:
+               points - the number of points to generate,
+               dims - the number of dimensions,
+               read_input - a name of a file with the input data, the data will
+                            be read in this case (not generated),
+               silent - whether to disable the printouts.
+  Reads input data from a file when the read_input parameter is provided,
+  otherwise generates it according to the dims and points parameters. The dims
+  and points attributes of the provided params are changed according to the data
+  when it is read from a file.
+  Result:
+    Points (numpy [num_dims x num_points] array);
+    Labels for those points (numpy [1 x num_points] array);
+  """
+  if params.read_input:
+    data = np.loadtxt(params.read_input)
+    points = data[0:-1, :]
+    labels = data[-1:, :]
+    params.dims = points.shape[0]
+    params.points = points.shape[1]
+
+    if not params.silent:
+      print('Input data is read from the dump file.')
+    return (points, labels)
+
+  points, labels, _, _ = lst.generate_input(params.dims, params.points)
+  if not params.silent:
+    print('Input data is generated.')
+  return (points, labels)
 
 if __name__ == "__main__":
   main()

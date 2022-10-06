@@ -28,9 +28,10 @@ def generate_input(num_dims, num_points, dist_func = lambda x : x):
                 different distribution; does not change the distribution by
                 default.
   Result:
-    Generated points;
-    Labels for those points;
-    theta and theta_0 that defines the chosen separator.
+    Generated points (numpy [num_dims x num_points] array);
+    Labels for those points (numpy [1 x num_points] array);
+    theta (numpy [num_dims x 1] array) and theta_0 (numpy [1 x 1]) array that
+    define the chosen separator.
   """
   points = dist_func(np.random.rand(num_dims, num_points))
 
