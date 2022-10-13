@@ -19,7 +19,8 @@ import argparse
 
 def main():
   args = parse_args()
-  points, labels, theta, theta_0 = lst.generate_input(2, args.num_points)
+  points, labels, theta, theta_0 = lst.generate_input(2, args.num_points,
+                                                      args.through_origin)
   lst.draw(points, labels, (theta, theta_0))
 
 def parse_args():
@@ -27,6 +28,9 @@ def parse_args():
                                                'separable data for you.')
   parser.add_argument('num_points', metavar='N', type=int, default=100,
                       nargs='?', help='The number of points to generate')
+  parser.add_argument('--through-origin', action='store_true',
+                      help='Generate separable through origin data and use '
+                           '"through origin" mode of an algorithm')
   return parser.parse_args()
 
 if __name__ == "__main__":

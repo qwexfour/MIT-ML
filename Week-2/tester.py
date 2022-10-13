@@ -56,6 +56,9 @@ def parse_args():
                       help='use visualization mode (works only for 2D)')
   parser.add_argument('--silent', '-s', action='store_true',
                       help='disable all printouts')
+  parser.add_argument('--through-origin', action='store_true',
+                      help='generate separable through origin data and use '
+                           '"through origin" mode of an algorithm')
   parser.add_argument('--dump-input', metavar='filename.txt', default='',
                       help='the name of a file to which the generated points '
                            'and labels must be dumped')
@@ -93,6 +96,7 @@ def run_test(params):
                             dumped,
                read_input - a name of a file with the input data, the data will
                             be read in this case (not generated),
+               through_origin - use "though origin" mode,
                silent - whether to disable the printouts.
   """
   points, labels = _get_input(params)
@@ -103,11 +107,13 @@ def run_test(params):
     np.savetxt(params.dump_input,
                np.concatenate((points, labels), casting='no'))
 
-  theta, theta_0 = params.algo(points, labels, {'T': params.petron_iter})
+  theta, theta_0 = params.algo(points, labels, _get_algo_params(params))
   if not params.silent:
     print('{a} was used.'.format(a=params.algo))
   if not params.silent:
-    print("Perceptron's solution (for T={t}) is:".format(t=params.petron_iter))
+    print("Perceptron's solution (for T={t}{o}) is:"
+            .format(t=params.petron_iter,
+                    o=', through origin' if params.through_origin else ''))
     print('  theta=\n{th},'.format(th=theta))
     print('  theta_0={th0}.'.format(th0=theta_0))
   score = hpl.score(points, labels, theta, theta_0)[0]
@@ -116,6 +122,17 @@ def run_test(params):
           'classified.'.format(s=score, p=params.points))
   if params.visualize and params.dims == 2:
     lst.draw(points, labels, (theta, theta_0))
+
+def _get_algo_params(params):
+  """ Forms algorithm (hyper)parameters.
+
+  Adapter that transforms arg parameters into alg parameters.
+  Parameters:
+    params - a class with the required arg parameters:
+               petron_iter - the number of iterations in perceptron algorithm,
+               through_origin - use "though origin" mode,
+  """
+  return {'T': params.petron_iter, 'through_origin': params.through_origin}
 
 def _get_input(params):
   """Reads from a file or generates input data.
@@ -146,7 +163,8 @@ def _get_input(params):
       print('Input data is read from the dump file.')
     return (points, labels)
 
-  points, labels, _, _ = lst.generate_input(params.dims, params.points)
+  points, labels, _, _ = lst.generate_input(params.dims, params.points,
+                                            params.through_origin)
   if not params.silent:
     print('Input data is generated.')
   return (points, labels)

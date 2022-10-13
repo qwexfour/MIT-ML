@@ -29,6 +29,7 @@ def perceptron(data, labels, params={}, hook=None):
   """
   # if T not in params, default to 100
   T = params.get('T', 100)
+  through_origin = params.get('through_origin', False)
 
   # Your implementation here
   num_dims, data_size = data.shape
@@ -42,7 +43,8 @@ def perceptron(data, labels, params={}, hook=None):
       prediction = np.dot(np.transpose(theta), x) + theta_0
       if y * prediction <= 0:
         theta += y * x
-        theta_0 += y
+        if not through_origin:
+          theta_0 += y
         if hook:
           hook((theta, theta_0))
 
@@ -64,6 +66,7 @@ def averaged_perceptron(data, labels, params={}, hook=None):
   """
   # if T not in params, default to 100
   T = params.get('T', 100)
+  through_origin = params.get('through_origin', False)
 
   # Your implementation here
   num_dims, data_size = data.shape
@@ -79,7 +82,8 @@ def averaged_perceptron(data, labels, params={}, hook=None):
       prediction = np.dot(np.transpose(theta), x) + theta_0
       if y * prediction <= 0:
         theta += y * x
-        theta_0 += y
+        if not through_origin:
+          theta_0 += y
         if hook:
           hook((theta, theta_0))
       theta_sum += theta

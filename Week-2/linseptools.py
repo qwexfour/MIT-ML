@@ -17,12 +17,14 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 import numpy as np
 import matplotlib.pyplot as plt
 
-def generate_input(num_dims, num_points, dist_func = lambda x : x):
+def generate_input(num_dims, num_points, through_origin,
+                   dist_func = lambda x : x):
   """Randomly generates an input for a linear separator.
 
   Parameters:
     num_dims - the number of dimensions;
     num_points - the number of points to produce;
+    through_origin - whether the separator must go through origin;
     dist_func - distribution function, it takes real values in [0, 1) range or
                 arrays of those values and returns a corresponding value with a
                 different distribution; does not change the distribution by
@@ -37,7 +39,10 @@ def generate_input(num_dims, num_points, dist_func = lambda x : x):
 
   # generating a plane parameters
   theta = np.random.rand(num_dims) - np.array([0.5] * num_dims)
-  point_on_plane = dist_func(np.random.rand(num_dims))
+  if through_origin:
+    point_on_plane = np.zeros(num_dims)
+  else:
+    point_on_plane = dist_func(np.random.rand(num_dims))
   theta_0 = -np.dot(theta, point_on_plane)
   theta = np.transpose(np.array([theta]))
 
