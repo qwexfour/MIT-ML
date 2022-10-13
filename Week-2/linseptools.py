@@ -119,6 +119,11 @@ def _draw_line(equation, min_point, max_point, epsilon):
   normal.
   """
   line_points = _define_box_crossing(equation, min_point, max_point, epsilon)
+
+  # No intersection, hence nothing to draw.
+  if line_points.shape[1] == 0:
+    return
+
   medium = (line_points[:, 0:1] + line_points[:, 1:2]) / 2
   scaled_theta = _scale_vector_for_box(equation[0], max_point - min_point)
   theta_tip = medium + scaled_theta
@@ -203,7 +208,8 @@ def _define_box_crossing(equation, min_point, max_point, epsilon):
      candidate[0, 0] < max_point[0, 0] + epsilon:
      result = np.concatenate((result, candidate), axis=1)
 
-  assert result.shape[1] == 2, "Must have found only 2 intersections"
+  assert result.shape[1] == 2 or result.shape[1] == 0, \
+         "Must have found no or 2 intersections"
   return result
 
 def _get_other_coordinate(equation, x, given_axis):
