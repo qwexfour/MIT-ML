@@ -107,7 +107,12 @@ def run_test(params):
     np.savetxt(params.dump_input,
                np.concatenate((points, labels), casting='no'))
 
-  theta, theta_0 = params.algo(points, labels, _get_algo_params(params))
+  mistakes_counter = 0
+  def mistakes_counter_func(x):
+    nonlocal mistakes_counter
+    mistakes_counter += 1
+  theta, theta_0 = params.algo(points, labels, _get_algo_params(params),
+                               mistakes_counter_func)
   if not params.silent:
     print('{a} was used.'.format(a=params.algo))
   if not params.silent:
@@ -120,6 +125,7 @@ def run_test(params):
   if not params.silent:
     print('{s} out of {p} points were correctly '
           'classified.'.format(s=score, p=params.points))
+    print(f'{mistakes_counter} mistakes were made.')
   if params.visualize and params.dims == 2:
     lst.draw(points, labels, (theta, theta_0))
 
