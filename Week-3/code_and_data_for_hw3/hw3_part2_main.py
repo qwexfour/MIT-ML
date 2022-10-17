@@ -32,18 +32,23 @@ auto_data_all = hw3.load_auto_data('auto-mpg.tsv')
 # The choice of feature processing for each feature, mpg is always raw and
 # does not need to be specified.  Other choices are hw3.standard and hw3.one_hot.
 # 'name' is not numeric and would need a different encoding.
-features = [('cylinders', hw3.raw),
-            ('displacement', hw3.raw),
-            ('horsepower', hw3.raw),
-            ('weight', hw3.raw),
-            ('acceleration', hw3.raw),
-            ## Drop model_year by default
-            ## ('model_year', hw3.raw),
-            ('origin', hw3.raw)]
-
-# Construct the standard data and label arrays
-auto_data, auto_labels = hw3.auto_data_and_labels(auto_data_all, features)
-print('auto data and labels shape', auto_data.shape, auto_labels.shape)
+feature_sets = [[('cylinders', hw3.raw),
+                 ('displacement', hw3.raw),
+                 ('horsepower', hw3.raw),
+                 ('weight', hw3.raw),
+                 ('acceleration', hw3.raw),
+                 ## Drop model_year by default
+                 ## ('model_year', hw3.raw),
+                 ('origin', hw3.raw)],
+                [('cylinders', hw3.one_hot),
+                 ('displacement', hw3.standard),
+                 ('horsepower', hw3.standard),
+                 ('weight', hw3.standard),
+                 ('acceleration', hw3.standard),
+                 ## Drop model_year by default
+                 ## ('model_year', hw3.standard),
+                 ('origin', hw3.one_hot)]]
+Ts = [1, 10, 50]
 
 if False:                               # set to True to see histograms
   import matplotlib.pyplot as plt
@@ -64,6 +69,25 @@ if False:                               # set to True to see histograms
 #-------------------------------------------------------------------------------
 
 # Your code here to process the auto data
+
+for f_set_idx, features in enumerate(feature_sets):
+  for T in Ts:
+    # Construct the standard data and label arrays
+    auto_data, auto_labels = hw3.auto_data_and_labels(auto_data_all, features)
+    ptron_score = hw3.xval_learning_alg(hw3.perceptron, auto_data,
+                                        auto_labels, 10, T)
+    av_ptron_score = hw3.xval_learning_alg(hw3.averaged_perceptron, auto_data,
+                                           auto_labels, 10, T)
+    print(f'Analysis for auto data for feature set {f_set_idx+1} and T = {T}:')
+    print('  auto data and labels shape', auto_data.shape, auto_labels.shape)
+    print('  Perceptron score is ', ptron_score)
+    print('  Averaged perceptron score is ', av_ptron_score)
+
+auto_data, auto_labels = hw3.auto_data_and_labels(auto_data_all, feature_sets[1])
+auto_theta = hw3.averaged_perceptron(auto_data, auto_labels, {'T' : 1})
+print('The best separator using averaged perceptron, T = 1, the first feature '
+      'set:')
+print(*auto_theta)
 
 #-------------------------------------------------------------------------------
 # Review Data
