@@ -145,19 +145,24 @@ def process_mnist():
 
   print('mnist_data_all loaded. shape of single images is', mnist_data_all[0]["images"][0].shape)
 
-  # HINT: change the [0] and [1] if you want to access different images
-  d0 = mnist_data_all[0]["images"]
-  d1 = mnist_data_all[1]["images"]
-  y0 = np.repeat(-1, len(d0)).reshape(1,-1)
-  y1 = np.repeat(1, len(d1)).reshape(1,-1)
+  raw_features_task = [(0, 1), (2, 4), (6, 8), (9, 0)]
 
-  # data goes into the feature computation functions
-  data = np.vstack((d0, d1))
-  # labels can directly go into the perceptron algorithm
-  labels = np.vstack((y0.T, y1.T)).T
+  print('Raw data tests:')
+  for fst_digit, snd_digit in raw_features_task:
+    print(f'  Comparaing {fst_digit} and {snd_digit}.')
+    d0 = mnist_data_all[fst_digit]["images"]
+    d1 = mnist_data_all[snd_digit]["images"]
+    y0 = np.repeat(-1, len(d0)).reshape(1,-1)
+    y1 = np.repeat(1, len(d1)).reshape(1,-1)
 
-  # use this function to evaluate accuracy
-  #acc = hw3.get_classification_accuracy(raw_mnist_features(data), labels)
+    # data goes into the feature computation functions
+    data = np.vstack((d0, d1))
+    # labels can directly go into the perceptron algorithm
+    labels = np.vstack((y0.T, y1.T)).T
+
+    # use this function to evaluate accuracy
+    acc = hw3.get_classification_accuracy(raw_mnist_features(data), labels)
+    print('  Accuracy:', acc)
 
   #-------------------------------------------------------------------------------
   # Analyze MNIST data
@@ -170,7 +175,9 @@ def raw_mnist_features(x):
   @param x (n_samples,m,n) array with values in (0,1)
   @return (m*n,n_samples) reshaped array where each entry is preserved
   """
-  raise Exception("implement me!")
+  n_samples, m, n = x.shape
+  x = x.reshape(n_samples, m * n)
+  return x.T
 
 def row_average_features(x):
   """
