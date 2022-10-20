@@ -336,6 +336,16 @@ def load_review_data(path_data):
       data.append(datum)
   return data
 
+def load_stop_words(file_path):
+  """ Reads the list of stop words from a file.
+
+  Parameters:
+    file_path - a path to a file with stop words.
+  A list of read words is returned.
+  """
+  with open(file_path) as f_data:
+    return f_data.read().splitlines()
+
 printable = set(printable)
 def clean(s):
   return filter(lambda x: x in printable, s)
@@ -353,18 +363,18 @@ def extract_words(input_string):
   # return [ps.stem(w) for w in input_string.lower().split()]
   return input_string.lower().split()
 
-def bag_of_words(texts):
+def bag_of_words(texts, stop_words):
   """
-  Inputs a list of string reviews
+  Inputs a list of string reviews and a list of stop words.
   Returns a dictionary of unique unigrams occurring over the input
 
-  Feel free to change this code as guided by Section 3 (e.g. remove stopwords, add bigrams etc.)
+  Feel free to change this code as guided by Section 3 (e.g. add bigrams etc.)
   """
   dictionary = {} # maps word to unique index
   for text in texts:
     word_list = extract_words(text)
     for word in word_list:
-      if word not in dictionary:
+      if word not in dictionary and word not in stop_words:
         dictionary[word] = len(dictionary)
   return dictionary
 

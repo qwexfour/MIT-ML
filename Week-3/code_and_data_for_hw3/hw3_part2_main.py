@@ -23,6 +23,8 @@ import argparse
 import numpy as np
 import code_for_hw3_part2 as hw3
 
+Ts = [1, 10, 50]
+
 def main():
   args = parse_args()
   if args.auto:
@@ -69,7 +71,6 @@ def process_auto():
                    ## Drop model_year by default
                    ## ('model_year', hw3.standard),
                    ('origin', hw3.one_hot)]]
-  Ts = [1, 10, 50]
 
   #-------------------------------------------------------------------------------
   # Analyze auto data
@@ -104,12 +105,14 @@ def process_review():
   # Returns lists of dictionaries.  Keys are the column names, 'sentiment' and 'text'.
   # The train data has 10,000 examples
   review_data = hw3.load_review_data('reviews.tsv')
+  stop_words = hw3.load_stop_words('stopwords.txt')
 
   # Lists texts of reviews and list of labels (1 or -1)
   review_texts, review_label_list = zip(*((sample['text'], sample['sentiment']) for sample in review_data))
 
   # The dictionary of all the words for "bag of words"
-  dictionary = hw3.bag_of_words(review_texts)
+  dictionary = hw3.bag_of_words(review_texts, stop_words)
+  rev_dictionary = hw3.reverse_dict(dictionary)
 
   # The standard data arrays for the bag of words
   review_bow_data = hw3.extract_bow_feature_vectors(review_texts, dictionary)
@@ -121,6 +124,22 @@ def process_review():
   #-------------------------------------------------------------------------------
 
   # Your code here to process the review data
+  for T in Ts:
+    ptron_score = hw3.xval_learning_alg(hw3.perceptron, review_bow_data,
+                                        review_labels, 10, T)
+    av_ptron_score = hw3.xval_learning_alg(hw3.averaged_perceptron, review_bow_data,
+                                           review_labels, 10, T)
+    print(f'Analysis for review data with T = {T}:')
+    print('  Perceptron score is ', ptron_score)
+    print('  Averaged perceptron score is ', av_ptron_score)
+
+  theta, theta_0 = hw3.averaged_perceptron(review_bow_data, review_labels, {'T' : 10})
+  sorted_indices = np.argsort(theta, axis=None)
+  ten_negative_words = [rev_dictionary[idx] for idx in sorted_indices[:10]]
+  ten_positive_words = [rev_dictionary[idx] for idx in sorted_indices[-10:]]
+  print('The best separator using averaged perceptron with T = 10 gives:')
+  print('  10 the most positive words: ', ten_positive_words)
+  print('  10 the most negative words: ', ten_negative_words)
 
 def process_mnist():
   #-------------------------------------------------------------------------------
