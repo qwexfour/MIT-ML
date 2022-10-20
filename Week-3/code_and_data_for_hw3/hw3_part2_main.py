@@ -145,11 +145,10 @@ def process_mnist():
 
   print('mnist_data_all loaded. shape of single images is', mnist_data_all[0]["images"][0].shape)
 
-  raw_features_task = [(0, 1), (2, 4), (6, 8), (9, 0)]
+  digit_pairs = [(0, 1), (2, 4), (6, 8), (9, 0)]
 
-  print('Raw data tests:')
-  for fst_digit, snd_digit in raw_features_task:
-    print(f'  Comparaing {fst_digit} and {snd_digit}.')
+  for fst_digit, snd_digit in digit_pairs:
+    print(f'Comparaing {fst_digit} and {snd_digit}.')
     d0 = mnist_data_all[fst_digit]["images"]
     d1 = mnist_data_all[snd_digit]["images"]
     y0 = np.repeat(-1, len(d0)).reshape(1,-1)
@@ -161,8 +160,21 @@ def process_mnist():
     labels = np.vstack((y0.T, y1.T)).T
 
     # use this function to evaluate accuracy
-    acc = hw3.get_classification_accuracy(raw_mnist_features(data), labels)
-    print('  Accuracy:', acc)
+    features = raw_mnist_features(data)
+    acc = hw3.get_classification_accuracy(features, labels)
+    print('  Raw accuracy:', acc)
+
+    features = row_average_features(data)
+    acc = hw3.get_classification_accuracy(features, labels)
+    print('  Row average accuracy:', acc)
+
+    features = col_average_features(data)
+    acc = hw3.get_classification_accuracy(features, labels)
+    print('  Column average accuracy:', acc)
+
+    features = top_bottom_features(data)
+    acc = hw3.get_classification_accuracy(features, labels)
+    print('  Top-bottom accuracy:', acc)
 
   #-------------------------------------------------------------------------------
   # Analyze MNIST data
@@ -186,7 +198,8 @@ def row_average_features(x):
   @param x (n_samples,m,n) array with values in (0,1)
   @return (m,n_samples) array where each entry is the average of a row
   """
-  raise Exception("modify me!")
+  x = np.average(x, axis=2)
+  return x.T
 
 
 def col_average_features(x):
@@ -196,7 +209,8 @@ def col_average_features(x):
   @param x (n_samples,m,n) array with values in (0,1)
   @return (n,n_samples) array where each entry is the average of a column
   """
-  raise Exception("modify me!")
+  x = np.average(x, axis=1)
+  return x.T
 
 
 def top_bottom_features(x):
@@ -209,7 +223,8 @@ def top_bottom_features(x):
   and the second entry is the average of the bottom half of the image
   = rows floor(m/2) [inclusive] to m
   """
-  raise Exception("modify me!")
+  halves = np.array_split(x, 2, axis=1)
+  return np.array([np.average(half, axis=(1, 2)) for half in halves])
 
 if __name__ == "__main__":
   main()
