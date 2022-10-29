@@ -21,7 +21,7 @@ def substitute(x, th, th0):
 
 def signed_dist(x, th, th0):
   res = substitute(x, th, th0)
-  return res / np.linalg.norm(th)
+  return res / np.linalg.norm(th, axis=0, keepdims=True).T
 
 def positive(x, th, th0):
   return np.sign(substitute(x, th, th0))
