@@ -61,6 +61,29 @@ def margin_features(data, labels, thetas, theta_0s):
   m_max = np.amax(margins, axis=1, keepdims=True)
   return np.hstack((m_sum, m_min, m_max))
 
+def hinge_loss(data, labels, thetas, theta_0s, ref_margin):
+  """
+  Calculates hinge losses for labeled points and hyperplanes.
+
+  Parameters:
+    data - n data points in d dimensions ([d x n] numpy array of numbers);
+    labels - data labels ([1 x n] numpy array of elements in {+1, -1}, or a
+             single number +1 or -1 for n == 1);
+    thetas - m hyperplane theta parameters ([d x m] numpy array of numbers);
+    theta_0s - m hyperplane theta_0 parameters ([1 x m] numpy array of numbers,
+               or a single number for m == 1);
+    ref_margin - hinge loss parameter, can be single or one per hyperplane
+                 ([1 x m] numpy array of numbers, or a single number for
+                 m == 1).
+
+  Returns [m x n] matrix of hinge losses for every plane and data combination.
+  """
+  margins = margin(data, labels, thetas, theta_0s)
+  if not isinstance(ref_margin, np.ndarray):
+    ref_margin = np.array([[ref_margin]])
+  clamped = np.minimum(margins, ref_margin.T)
+  return 1 - clamped / ref_margin.T
+
 def _task_1():
   """Implements the first task."""
   data = np.array([[1, 2, 1, 2, 10, 10.3, 10.5, 10.7],
@@ -80,7 +103,7 @@ def _task_1():
         "one.\nColumns are: Ssum, Smin, Smax.")
   print(res)
 
-def _single_sep_test():
+def _features_single_sep_test():
   data = np.array([[1, 2, 1, 2, 10, 10.3, 10.5, 10.7],
                    [1, 1, 2, 2,  2,  2,  2, 2]])
   labels = np.array([[-1, -1, 1, 1, 1, 1, 1, 1]])
@@ -92,7 +115,7 @@ def _single_sep_test():
         "separator:")
   print(res)
 
-def _degenerate_case_test():
+def _features_degenerate_case_test():
   data = np.array([[10],
                    [2]])
   labels = 1
@@ -104,8 +127,38 @@ def _degenerate_case_test():
         "separator and a single data point:")
   print(res)
 
+def _task_3b():
+  """Implements task 3b."""
+  data = np.array([[1.1, 1, 4],[3.1, 1, 2]])
+  labels = np.array([[1, -1, -1]])
+  th = np.array([[1, 1]]).T
+  th0 = -4
+  ref_margin = 0.5**0.5
+
+  res = hinge_loss(data, labels, th, th0, ref_margin)
+  print("Task 3B: calculated hinge losses:")
+  print(res)
+
+def _hinge_loss_multi_plane_test():
+  """Implements the first task."""
+  data = np.array([[1, 2, 1, 2, 10, 10.3, 10.5, 10.7],
+                   [1, 1, 2, 2,  2,  2,  2, 2]])
+  labels = np.array([[-1, -1, 1, 1, 1, 1, 1, 1]])
+  blue_th = np.array([[0, 1]]).T
+  blue_th0 = -1.5
+  red_th = np.array([[1, 0]]).T
+  red_th0 = -2.5
+
+  ths = np.hstack((red_th, blue_th))
+  th0s = np.array([[red_th0, blue_th0]])
+  res = hinge_loss(data, labels, ths, th0s, 0.5)
+  print(res)
+  res = hinge_loss(data, labels, ths, th0s, np.array([[0.5, 1.0]]))
+  print(res)
+
 def _main():
   _task_1()
+  _task_3b()
 
 if __name__ == "__main__":
   _main()
