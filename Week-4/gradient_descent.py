@@ -14,6 +14,8 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
+import numpy as np
+
 def gd(f, df, x0, step_size_fn, max_iter):
   """ Calculates gradient descent.
 
@@ -40,3 +42,36 @@ def gd(f, df, x0, step_size_fn, max_iter):
     fs.append(f(x))
     xs.append(x)
   return (x, fs, xs)
+
+def part_deriv(f, x, idx, delta=0.001):
+  """ Numerically calculates partial derivative df / dx_idx.
+
+  Parameters:
+    f - a function which derivative must be taken, whose input is an x,
+        a column vector, and returns a scalar;
+    x - a point at which the derivative must be taken, a column vector;
+    idx - along which dimension the derivative must be taken;
+    delta - half the distance between 2 points used to calculate the derivative,
+            a number.
+
+  The value of the partial derivative is returned.
+  """
+  vec_delta = np.zeros(x.shape)
+  vec_delta[idx, 0] = delta
+  return (f(x + vec_delta) - f(x - vec_delta)) / (2 * delta)
+
+def num_grad(f, delta=0.001):
+  """ Numerically calculates gradient function.
+
+  Parameters:
+    f - a function which gradient must be taken, whose input is an x,
+        a column vector, and returns a scalar;
+    delta - half the distance between 2 points used to calculate the gradient,
+            a number.
+
+  The function that calculates the gradient of the provided function is
+  returned.
+  """
+  def df(x):
+    return np.array([[part_deriv(f, x, i, delta) for i in range(x.shape[0])]]).T
+  return df
