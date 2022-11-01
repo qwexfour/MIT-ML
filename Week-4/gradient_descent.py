@@ -75,3 +75,23 @@ def num_grad(f, delta=0.001):
   def df(x):
     return np.array([[part_deriv(f, x, i, delta) for i in range(x.shape[0])]]).T
   return df
+
+def minimize(f, x0, step_size_fn, max_iter):
+  """ Calculates gradient descent.
+
+  Unlike gd this function calculates gradient numerically.
+
+  Parameters:
+    f - a function whose input is an x, a column vector, and returns a scalar;
+    x0 - an initial value of x, x0, which is a column vector;
+    step_size_fn - a function that is given the iteration index (an integer)
+                   and returns a step size;
+    max_iter - the number of iterations to perform.
+
+  Returns a tuple that consists of:
+    x - the value at the final step
+    fs - the list of values of f found during all the iterations
+         (including f(x0))
+    xs - the list of values of x found during all the iterations (including x0)
+  """
+  return gd(f, num_grad(f), x0, step_size_fn, max_iter)
