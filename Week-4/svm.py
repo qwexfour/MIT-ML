@@ -169,12 +169,10 @@ def _super_simple_separable_svm_obj_test():
   th1, th1_0 = np.array([[-0.40338351], [1.1849563]]), np.array([[-2.26910091]])
 
   # Test case 1
-  ans = svm_obj(x_1, y_1, th1, th1_0, .1)
-  print(ans)
+  assert abs(svm_obj(x_1, y_1, th1, th1_0, .1) - 0.1566839689) < 0.0000000001
 
   # Test case 2
-  ans = svm_obj(x_1, y_1, th1, th1_0, 0.0)
-  print(ans)
+  assert abs(svm_obj(x_1, y_1, th1, th1_0, 0.0)) < 0.0000000001
 
 def _svm_obj_grad_test():
   X1 = np.array([[1, 2, 3, 9, 10]])
@@ -206,6 +204,7 @@ def _svm_obj_grad_test():
          [[-0.06], [0.3], [0.0]]
 
 def _main():
+  _super_simple_separable_svm_obj_test()
   _svm_obj_grad_test()
 
 if __name__ == "__main__":
