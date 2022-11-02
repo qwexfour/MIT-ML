@@ -17,6 +17,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 import sys
 import numpy as np
 
+import gradient_descent as gd
+
 # FIXME: find a better way.
 sys.path.append('../Week-1')
 import hyperplane as hp
@@ -161,6 +163,19 @@ def svm_obj_grad(x, y, th, th0, lam):
   return np.vstack((d_svm_obj_th(x, y, th, th0, lam),
                     d_svm_obj_th0(x, y, th, th0, lam)))
 
+def batch_svm_min(data, labels, lam):
+  """Minimizes SVM objective for the provided data."""
+  def svm_min_step_size_fn(i):
+    return 2/(i+1)**0.5
+  d = data.shape[0]
+  return gd.gd(lambda th_th0 : svm_obj(data, labels, th_th0[0:-1, :],
+                                       th_th0[-1:, :], lam),
+               lambda th_th0 : svm_obj_grad(data, labels, th_th0[0:-1, :],
+                                            th_th0[-1:, :], lam),
+               np.zeros((d + 1, 1)),
+               svm_min_step_size_fn,
+               10)
+
 def _super_simple_separable_svm_obj_test():
   x_1 = np.array([[2, 3, 9, 12],
                 [5, 2, 6, 5]])
@@ -203,9 +218,18 @@ def _svm_obj_grad_test():
   assert svm_obj_grad(X2[:,0:1], y2[:,0:1], th2, th20, 0.01).tolist() == \
          [[-0.06], [0.3], [0.0]]
 
+def _separable_medium_batch_svm_min_test():
+  x = np.array([[2, -1, 1, 1],
+                [-2, 2, 2, -1]])
+  y = np.array([[1, -1, 1, -1]])
+  res = batch_svm_min(x, y, 0.0001)
+  ref = np.array([[1.44606931], [0.7975608], [-1.20825111]])
+  assert np.linalg.norm(res[0] - ref) < 0.00001
+
 def _main():
   _super_simple_separable_svm_obj_test()
   _svm_obj_grad_test()
+  _separable_medium_batch_svm_min_test()
 
 if __name__ == "__main__":
   _main()
