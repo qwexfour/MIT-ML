@@ -31,8 +31,15 @@ def _task_2_1():
   print("Ex2.1:")
   print(res)
 
+def _task_2_2():
+  blue, green, x, y = _task_2_data()
+  res = sqr.square_loss_grad(x, y, *blue)
+  print("Ex2.2(gradients are column vectors, dL/dth0 is the last element):")
+  print(res)
+
 def _main():
   _task_2_1()
+  _task_2_2()
 
 if __name__ == "__main__":
   _main()

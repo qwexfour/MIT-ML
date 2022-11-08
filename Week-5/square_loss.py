@@ -29,7 +29,7 @@ def square_loss(x, y, th, th0):
   Parameters:
     x - n input points in d dimensions from the training data set ([d x n]
         numpy array of numbers);
-    y - n output values from the training data set ([1 x n] numpy array of 
+    y - n output values from the training data set ([1 x n] numpy array of
         numbers, or a single number for n == 1);
     th - m hyperplane theta parameters ([d x m] numpy array of numbers);
     th0 - m hyperplane theta_0 parameters ([1 x m] numpy array of numbers,
@@ -40,3 +40,23 @@ def square_loss(x, y, th, th0):
   guess = hp.substitute(x, th, th0)
   diff = y - guess
   return diff**2
+
+def square_loss_grad(x, y, th, th0):
+  """
+  Calculates square loss gradients in respect to th and th0.
+
+  Parameters:
+    x - n input points in d dimensions from the training data set ([d x n]
+        numpy array of numbers);
+    y - n output values from the training data set ([1 x n] numpy array of
+        numbers, or a single number for n == 1);
+    th - hyperplane theta parameter ([d x 1] numpy array of numbers);
+    th0 - hyperplane theta_0 parameter (a number);
+
+  Returns row vector of gradients for every data point which gives [d+1 x n]
+  matrix in total.
+  """
+  guess = hp.substitute(x, th, th0)
+  th0_part = -2 * (y - guess)
+  th_part = th0_part * x
+  return np.vstack((th_part, th0_part))
