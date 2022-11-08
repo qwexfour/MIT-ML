@@ -1,0 +1,38 @@
+#!/usr/bin/python3
+"""Program to calculate results for the 5th week exercises.
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
+import numpy as np
+
+import square_loss as sqr
+
+def _task_2_data():
+  blue = (np.array([[1]]), 0)
+  green = (np.array([[1]]), 1)
+  x = np.array([[1, 1, 3, 3]])
+  y = np.array([[3, 1, 2, 6]])
+  return blue, green, x, y
+
+def _task_2_1():
+  blue, green, x, y = _task_2_data()
+  res = sqr.square_loss(x, y, *blue)
+  print("Ex2.1:")
+  print(res)
+
+def _main():
+  _task_2_1()
+
+if __name__ == "__main__":
+  _main()
