@@ -49,11 +49,18 @@ def _task_2_4():
   print("Ex2.4(gradients are column vectors, dL/dth0 is the last element):")
   print(res)
 
+def _hw_4():
+  X = np.array([[1, 2], [2, 3], [3, 5], [1, 4]])
+  X_sqr = np.dot(X, np.transpose(X))
+  det = np.linalg.det(X_sqr)
+  print("HW4: det(X@X.T) = ", 0)
+
 def _main():
   _task_2_1()
   _task_2_2()
   _task_2_3()
   _task_2_4()
+  _hw_4()
 
 if __name__ == "__main__":
   _main()
