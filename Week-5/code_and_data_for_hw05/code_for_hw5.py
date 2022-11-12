@@ -268,7 +268,17 @@ def sgd(X, y, J, dJ, w0, step_size_fn, max_iter):
 
   """
   #Your code here
-  pass
+  data_size = X.shape[1]
+  ws = [w0]
+  fs = [J(X[:,0:1], y[:,0:1], w0)]
+  cur_w = w0
+  for i in range(0, max_iter - 1):
+    sample = np.random.randint(0, data_size)
+    cur_x, cur_y = X[:, sample:sample+1], y[:,sample:sample+1]
+    cur_w = cur_w - step_size_fn(i) * dJ(cur_x, cur_y, cur_w)
+    ws.append(cur_w)
+    fs.append(J(cur_x, cur_y, cur_w))
+  return cur_w, fs, ws
 
 ############################################################
 #From HW04; Used in the test case for sgd, below
